@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Simple Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+      /* 設置地圖高度以定義div的大小*/
+      #map {
+        height: 100%;
+      }
+      /* 填滿窗口 */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    
+    <script>
+
+      var locations = [
+                     ['A', 22.548802, 114.067747],
+                     ['B', 22.544526,114.083781],
+                     ['C', 22.5483557, 114.063093],
+                     ['D', 22.535056, 114.068064],
+                     ['E', 22.547366, 114.066340],
+                     ['F',22.542912, 114.057919]
+                   ];
+      var map;
+      var infowindow;
+      
+      function initMap() {
+        var uluru = {lat: 22.544829, lng: 114.070715};//地圖預設點
+        var map = new google.maps.Map(document.getElementById('map'), {
+          center: uluru ,
+          zoom: 15
+        });
+      	 
+        
+        infowindow = new google.maps.InfoWindow();//初始一個物件
+        for (i = 0; i < locations.length; i++) { 
+            var marker = new google.maps.Marker({
+                position: new google.maps.LatLng(locations[i][1],locations[i][2]),    //也可以寫成{lat: 22.544526, lng: 114.083781},
+                animation: google.maps.Animation.DROP,  //--落下動畫
+                map: map
+              });
+            
+            toal(marker,i);//闭包解决方法1
+            
+            //闭包解决方法2
+            /*
+            google.maps.event.addListener(marker, 'click', (function(marker,i){
+                return function(){
+                	infowindow.setContent(locations[i][0]);
+                    infowindow.open(map,marker);
+                }
+            })(marker,i));
+            */
+            //設定當縮放地圖時，則關閉存在的資訊視窗
+            google.maps.event.addListener(map, 'zoom_changed', function() {
+	            if (infowindow){
+	                infowindow.close(); 
+	            }
+            });
+    	}
+      }
+      
+      function toal(marker,i){
+    	  
+    	  marker.addListener('click', function() {
+    		  //alert(i);
+    		  infowindow.setContent('<p>'+locations[i][0]+'</p>')
+    	      infowindow.open(map, marker);
+          });
+      } 
+      
+      
+      
+      
+      //---自定Array方式
+      function newArray() {
+          var myarray = [];
+          
+    	  var myJSON = "";
+    	  for (var i = 0; i < 10; i++) {
+    	      var item = {
+    	          "value": i,
+    	          "label": i
+    	      };
+    	      myarray.push(item);
+    	  }
+    	  
+    	  var dependentProperties = []; //array
+    	  for (var i = 0; i < 10; i++) {
+    		  dependentProperties.push({name: i, value: i+"a"});
+    	  }
+    	  
+    	  
+      }
+    </script>
+    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4Lbkr9fYLLn95f5fpUF0UkeegeQy5kx8&callback=initMap"
+    async defer></script>
+  </body>
+</html>

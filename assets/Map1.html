@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Simple Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+      /* 設置地圖高度以定義div的大小*/
+      #map {
+        height: 100%;
+      }
+      /* 填滿窗口 */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    
+    <script>
+      var map;
+
+      function initMap() {
+        var uluru = {lat: 22.5483557, lng: 114.063093};
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 4,
+          center: uluru ,
+          zoom: 13
+        });
+        
+        var marker = new google.maps.Marker({
+            position: uluru,
+            animation: google.maps.Animation.BOUNCE,  //--持續跳動
+            icon:"http://www.google.com/mapfiles/markerA.png",
+            map: map
+          });
+          
+        var marker2 = new google.maps.Marker({
+            position: {lat: 22.544526, lng: 114.083781},
+            animation: google.maps.Animation.DROP,  //--落下動畫
+            map: map
+          });  
+        
+        var infowindow = new google.maps.InfoWindow();//初始一個物件
+        
+        /*
+        google.maps.event.addListener(marker, 'click', function() {
+            infowindow.open(map, marker);
+        });
+		*/
+        marker.addListener('click', function() {
+        	infowindow.setContent("<p>這是內容A...</p>")
+        	infowindow.open(map, marker);
+        });
+		marker2.addListener('click', function() {
+			infowindow.setContent("<p>這是內容B...</p>")
+        	infowindow.open(map, marker2);
+        });
+      }
+      
+    </script>
+    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4Lbkr9fYLLn95f5fpUF0UkeegeQy5kx8&callback=initMap"
+    async defer></script>
+  </body>
+</html>
