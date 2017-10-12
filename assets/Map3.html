@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+      /* 設置地圖高度以定義div的大小*/
+      #map {
+        height: 100%;
+      }
+      /* 填滿窗口 */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    
+    <script>
+
+      var map;
+      var infowindow;
+      //var uluru = {lat: 22.544829, lng: 114.070715};//地圖預設點
+      var myCenter; //地圖預設點
+      var mainMarker;//當前位置
+      var markers = [];//-標記陣列
+
+      //初始化
+      function initMap() {
+    	/*
+    		 zoomControl 啟用/停用「縮放」控制項。此控制項預設會顯示在靠近地圖的右下角。zoomControlOptions 欄位額外指定 ZoomControlOptions 供此控制項使用。
+    		 mapTypeControl 啟用/停用讓使用者切換地圖類型（例如「地圖」和「衛星」）的「地圖類型」控制項。此控制項預設會顯示在靠近地圖的左上角。mapTypeControlOptions 欄位額外指定 MapTypeControlOptions 供此控制項使用。
+    		 streetViewControl 啟用/停用讓使用者啟用「街景服務」全景功能的「小黃人」控制項。此控制項預設會顯示在靠近地圖的右下角。streetViewControlOptions 欄位額外指定 StreetViewControlOptions 供此控制項使用。
+    		 rotateControl 啟用/停用顯示控制 45° 影像方向的「旋轉」控制項。此控制項是否出現預設是由指定地圖類型在目前的縮放和地點是否有 45° 影像來決定。您可以設定地圖的 rotateControlOptions 指定要使用的 RotateControlOptions 來改變控制項的行為。如果目前沒有 45° 影像，就無法讓此控制項顯示。
+    		 scaleControl 啟用/停用提供簡單地圖比例的「比例」控制項。此控制項預設不會顯示。如果啟用，則一律顯示在地圖的右下角。scaleControlOptions 額外指定 ScaleControlOptions 供此控制項使用。
+    		 fullscreenControl 可啟用/停用以全螢幕模式開啟地圖的控制項。在預設情況下，此控制項在行動裝置上是可見的，但在電腦上則不可見。啟用時，此控制項會出現在地圖右上角附近。fullscreenControlOptions 會額外指定 FullscreenControlControlOptions 以針對此控制項使用。
+    	*/
+    	myCenter = new google.maps.LatLng(22.544829, 114.070715); //地圖預設點
+    	markers = [];
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: myCenter , //载入预设坐标
+          mapTypeControl: false,
+          mapTypeId: google.maps.MapTypeId.ROADMAP,  // 地圖樣式(一般街道圖)
+          streetViewControl: false,   // 停用「小黃人」控制項
+          zoomControl: false ,
+          zoom: 14
+        });
+      	 
+        infowindow = new google.maps.InfoWindow();//初始小视窗元件
+        
+        //-透過新增控制項位置，將 div 放置在地圖右下角 
+        var centerControlDiv = document.createElement('div');
+		var centerControl = new CenterControl(centerControlDiv, map); //-繪製自訂控制項
+        centerControlDiv.index = 1;
+		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(centerControlDiv);//-BOTTOM_CENTER 表示要沿著地圖底部中間放置控制項
+
+		google.maps.event.addListener(map, 'zoom_changed', function() {
+            if (infowindow){
+                infowindow.close(); 
+            }
+        });
+      }
+      //-繪製自訂控制項
+      function CenterControl(controlDiv, map) {
+		  // Set CSS for the control border.
+		  var controlUI = document.createElement('div');
+		  controlUI.style.backgroundColor = '#fff';
+		  controlUI.style.border = '2px solid #fff';
+		  controlUI.style.borderRadius = '3px';
+		  controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
+		  controlUI.style.cursor = 'pointer';
+		  controlUI.style.marginBottom = '10px';
+		  controlUI.style.textAlign = 'center';
+		  controlUI.title = '定位到當前';
+		  controlDiv.appendChild(controlUI);
+		
+		  // Set CSS for the control interior.
+		  var controlText = document.createElement('div');
+		  controlText.style.color = 'rgb(25,25,25)';
+		  controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
+		  controlText.style.fontSize = '16px';
+		  //controlText.style.lineHeight = '30px';
+		  //controlText.style.paddingLeft = '5px';
+		  //controlText.style.paddingRight = '5px';
+		  controlText.innerHTML = '<img src="http://maps.google.com/mapfiles/kml/pal2/icon13.png">';
+		  controlUI.appendChild(controlText);
+		
+		  //設置點擊事件偵聽器
+		  controlUI.addEventListener('click', function() {
+			 map.setZoom(15);
+			 map.setCenter(myCenter);
+		  });
+      }
+
+      
+      
+      //-載入起始座標
+      function initmap(lat,lon) {
+          myCenter = new google.maps.LatLng(lat,lon);
+          map.panTo(myCenter); //--平移到座標
+          //將目前位置的座標加入到地圖中
+          mainMarker = new google.maps.Marker({
+		        position: myCenter,
+		        map: map,
+		        title: '當前位置',
+		        icon: "http://www.google.com/mapfiles/markerA.png",
+		    }); 
+          mainMarker.addListener('click', function() {
+    		  //alert(i);
+    		  infowindow.setContent(mainMarker.title);	 
+    	      infowindow.open(map, mainMarker);
+          });
+      }
+
+      //--載入座標鎮列
+      function setMarker(jsonStr){
+    	  clearMarkers();
+
+    	  var json = JSON.parse(jsonStr);
+    	  
+    	  for (var i in json){
+    		name = json[i].title;
+    		lat = json[i].lat;
+    		lng = json[i].lon;
+    		
+    		var marker = new google.maps.Marker({
+                 position: new google.maps.LatLng(lat,lng),    //也可以寫成{lat: 22.544526, lng: 114.083781},
+                 animation: google.maps.Animation.DROP,  //--落下動畫
+                 map: map ,
+                 title: name
+               });
+    		markers.push(marker);
+    		toal(marker);//闭包解决方法1
+          	
+          }
+
+      }
+      
+      //闭包解决方法1
+      function toal(marker){
+    	  
+    	  marker.addListener('click', function() {
+    		  //alert(i);
+    		  //infowindow.setContent('<p>'+"77777"+'</p>')
+    		  infowindow.setContent(marker.title);	 
+    	      infowindow.open(map, marker);
+          });
+      } 
+      
+      //--清除所有標記
+      function clearMarkers() {
+	        for (var i = 0; i < markers.length; i++) {
+	        	markers[i].setMap(null);
+	        }
+	  }
+
+      
+    </script>
+    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4Lbkr9fYLLn95f5fpUF0UkeegeQy5kx8&callback=initMap"
+    async defer></script>
+  </body>
+</html>

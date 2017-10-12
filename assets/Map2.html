@@ -28,7 +28,9 @@
                      ['C', 22.5483557, 114.063093],
                      ['D', 22.535056, 114.068064],
                      ['E', 22.547366, 114.066340],
-                     ['F',22.542912, 114.057919]
+                     ['F',22.542912, 114.057919],
+                     ['G',22.540552, 114.071669],
+                     ['H',22.543446, 114.067849]
                    ];
       var map;
       var infowindow;
@@ -61,12 +63,13 @@
             })(marker,i));
             */
             //設定當縮放地圖時，則關閉存在的資訊視窗
-            google.maps.event.addListener(map, 'zoom_changed', function() {
-	            if (infowindow){
-	                infowindow.close(); 
-	            }
-            });
+            
     	}
+        google.maps.event.addListener(map, 'zoom_changed', function() {
+            if (infowindow){
+                infowindow.close(); 
+            }
+        });
       }
       
       function toal(marker,i){
